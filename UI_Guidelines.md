@@ -1,11 +1,20 @@
-# Taruvi UI/UX Guidelines (draft — terse standard)
+# Taruvi UI/UX Guidelines
 
 Design-system rules the MUI theme can't enforce, plus general web-interface
-rules for the parts of the stack no theme covers. State issue only. 
+rules for the parts of the stack no theme covers. Rules only — this file
+never restates a token's literal value. Values live in exactly one place,
+your app's own theme file (`taruviTokens`, typically `themeOptions.ts` at
+the project root or under `src/theme/`):
 
 ```ts
-import { taruviTokens } from "../../theme/themeOptions"; // adjust depth to your file
+import { taruviTokens } from "<path to your theme file>";
 ```
+
+Every `taruviTokens.*` path below resolves against your own file, not this
+one. If a fact stated here (a hex, a contrast ratio) ever disagrees with
+your theme, the theme wins — treat the disagreement as this doc being stale,
+not the other way around.
+
 ---
 
 ## Theme-handled — don't rebuild
@@ -14,18 +23,18 @@ import { taruviTokens } from "../../theme/themeOptions"; // adjust depth to your
 - Buttons: Quicksand 700 UPPERCASE, 4px radius, min-h 28/36/44 (44px on `(pointer: coarse)`)
 - Chips: pill, Quicksand 700 UPPERCASE, 4 pastel variants
 - Cards/Dialogs: 10px radius, 28px padding
-- Inputs: 6px radius, `#F3F3F5` fill, 16px font (blocks iOS zoom-on-focus), 2px focus ring
+- Inputs: 6px radius, `taruviTokens.surface.inputBg` fill, 16px font (blocks iOS zoom-on-focus), 2px focus ring
 - Tables/DataGrid: 8px wrapper, 11px UPPERCASE head, hover `primary-50`, row virtualization built in
 - Radii render ~50% softer than design-spec comments in `themeOptions.ts` say — trust the rendered value
 
 ## Color
 
 - Brand tones (`success[500]`, `primary[700]`) → illustrations/swatches only
-- Chip/status tone (`status.inProgress` `#1976d2`, `status.review` `#f57c00`, chip-success `#388e3c`) → chips, alerts, buttons, sidebar
+- Chip/status tone (`taruviTokens.status.inProgress`, `taruviTokens.status.review`, `taruviTokens.status.complete`) → chips, alerts, buttons, sidebar
 - Chart tone (`status.resolved`, `status.chartPrimary`, `status.underReview`) → charts only, never UI affordances
 - Never hardcode a brand hex — import `taruviTokens`
 - Status chips: `<Chip color="success|info|warning|error" label="COMPLETE|IN PROGRESS|REVIEW|DELAYED" />`
-- ON HOLD / TO DO chips use `sx` with a **measured** label color, not reflexive `#fff` — `#00acc1` (TO DO fill) is only 2.74:1 with white, needs a dark label
+- ON HOLD / TO DO chips use `sx` with a **measured** label color, not reflexive `#fff` — `taruviTokens.status.todo` (TO DO fill) is only 2.74:1 with white at its current value, needs a dark label; re-measure if the token's value ever changes
 - Priority chips: `<Chip variant="outlined" color="error|warning|success" label="HIGH|MEDIUM|LOW" />` — theme supplies the tone, don't set `color`/`borderColor` by hand
 - Tag/category chips: `variant="tagBlue|tagPurple|tagGreen|tagOrange|tagTeal|tagPink|tagLime|tagRose"` (8 variants) — hash tag name to an index for deterministic rotation; only append to the palette, never reorder
 - Never use the tag rotation palette for status — rotation means "different," status means "different in severity"
@@ -109,7 +118,7 @@ import { taruviTokens } from "../../theme/themeOptions"; // adjust depth to your
 
 ## Dark Mode & Theming
 
-- NavKit ships 3 variants — Blue `#2b97ff` (default), White, Dark `#004369` — set via `getTheme` callback in `src/App.tsx`, not the MUI theme
+- NavKit ships 3 variants — Blue `taruviTokens.surface.navBlue` (default), White, Dark `taruviTokens.surface.navDark` — set via `getTheme` callback in `src/App.tsx`, not the MUI theme
 - Theme mode lives in `src/contexts/color-mode/index.tsx`
 - Dark-mode foreground tones use `primary[300]`-class, not the light-mode `button.primaryHover` value
 
