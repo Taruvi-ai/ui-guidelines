@@ -31,9 +31,18 @@ consumer always gets the latest commit.
 `UI_Guidelines.md` states *which* token to reach for and *why* — it never
 restates a token's literal value (hex, ratio, px). Values live in exactly
 one place: the consuming app's own theme file (`taruviTokens`, typically
-`themeOptions.ts`). This is deliberate — duplicating literal values into a
-separately-versioned doc is how the doc and the theme silently drift apart.
+`themeOptions.ts`). This isn't only about preventing drift — different
+apps/forks legitimately have different values in there (a client reskin, a
+rebrand), so there is no single correct value this repo could state even if
+it wanted to. This repo owns the *shape* of `taruviTokens` (the token names
+and what each is for) — every fork's design is expected to expose those same
+names — never the values behind them.
+
 If you're editing this file and about to type a hex code, stop and use the
-token's dotted path (`taruviTokens.status.review`) instead; the one
-exception is a generic, non-brand value used to state a computed
-accessibility fact (e.g. an overlay alpha's contrast ratio).
+token's dotted path (`taruviTokens.status.review`) instead. The one
+exception is a computed accessibility fact (a contrast ratio, an overlay
+alpha) that only makes sense stated as a number — those are allowed, but
+must name the token they're computed against and say the fact only holds
+"at its current value" / "re-measure if reskinned." An unqualified ratio in
+this file is a bug: it reads as a universal fact when it's actually true for
+Taruvi's own default palette only.

@@ -49,7 +49,7 @@ not the other way around.
 - One `<h1>` per page (`variant` is visual, `component` is semantic) — never skip heading levels
 - Icon-only controls need `aria-label` — a `<Tooltip>` is not an accessible name
 - Color never carries meaning alone — chips/charts/errors carry text or icon + text too
-- Never use `text.disabled` for content text (2.8:1, fails AA) — use `text.secondary`
+- Never use `text.disabled` for content text (2.8:1 at its current value, fails AA — re-measure if reskinned) — use `text.secondary`
 - Errors use `role="alert"`
 - Never remove focus outlines without a `:focus-visible` replacement
 - Touch targets ≥24px, primary actions ≥44px — `size="small"` `IconButton` (30px) is table-row-only
@@ -157,7 +157,7 @@ Left-align + vertical-center is the DataGrid v7 default (theme's `cell` slot fle
 
 ### Bulk actions toolbar
 
-A list with selection checkboxes needs one — checkboxes without it are dead controls. Appears only when ≥1 row selected · count in an `aria-live="polite"` region · clear-selection control has `aria-label` · destructive bulk actions route through the confirmation-dialog rules above · outlined-on-blue borders use `rgba(255,255,255,0.7)` (`0.5` fails 3:1).
+A list with selection checkboxes needs one — checkboxes without it are dead controls. Appears only when ≥1 row selected · count in an `aria-live="polite"` region · clear-selection control has `aria-label` · destructive bulk actions route through the confirmation-dialog rules above · outlined-on-blue borders use `rgba(255,255,255,0.7)` (`0.5` fails 3:1 against the current blue — re-measure if that token's reskinned).
 
 ### Entity card
 
