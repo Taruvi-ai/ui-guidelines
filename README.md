@@ -1,6 +1,6 @@
 # Taruvi design context
 
-Four documents. Each is read in a different situation; none duplicates another.
+Five documents. Each is read in a different situation; none duplicates another.
 If you find the same value in two files, that is a bug — delete one.
 
 ## What to read when
@@ -62,31 +62,9 @@ re-verified.
 ### `LINT_CANDIDATES.md` — working list, not a permanent doc
 
 Rules a linter can enforce deterministically at zero token cost. Delete each
-entry as the rule ships, and delete the rule from `UX.md` at the same time.
-
-## Open items
-
-1. **Review chip hue.** `status-review` is `#bf360c` — it's an existing step in
-   the theme's warning ramp, not a new color, but it may still collide with the
-   error chip. Compare them side by side before treating this as settled.
-2. **"No toasts" vs. the current app.** `UX.md`'s Action Feedback model and
-   `LINT_CANDIDATES.md`'s corresponding rule describe a toast-free feedback
-   system that `taruvi-refine-template` does not implement today — it wires
-   `RefineSnackbarProvider`/`useNotificationProvider`, and its own `AGENTS.md`
-   mandates that. Resolve one way or the other — build the row/undo/banner
-   model for real, or revise the policy to match what's actually shipped —
-   before enabling the lint rule even informationally.
-3. **`ui-ux-reviewer.md` needs updating**, in `taruvi-refine-template`, to read
-   `DESIGN.md` + `UX.md` + `taruvi-ui/*` instead of the retired single
-   `UI_Guidelines.md` URL, or its WCAG audit quietly gets narrower than before.
-4. **`ui-ux-review.yml`'s trigger paths** only fire on `src/pages/**`/
-   `src/components/**` — a `themeOptions.ts`-only change, exactly where token
-   drift gets introduced, currently skips review entirely.
-5. **`AGENTS.md` paths** need filling per app.
-6. **Error/on-error.** Filled from `themeOptions.ts` (`error[600]`, verified at
-   5.87:1 white-on-fill) — the claim that these previously "borrowed
-   `status-review`" didn't check out against the actual app code, so it was
-   dropped rather than carried forward.
+entry as the rule ships, and delete the rule from `UX.md` at the same time. One
+entry (no toasts) carries its own blocker note rather than shipping as an
+enabled rule — see the file itself.
 
 ## Maintaining this
 

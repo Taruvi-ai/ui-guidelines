@@ -11,7 +11,7 @@ colors:
   # white and sits in a 0.137-0.182 luminance band so no status outshouts another.
   # Do not lighten any of these without re-checking both.
   status-in-progress: "#1976d2"
-  status-review: "#bf360c"        # DECISION PENDING - see Colors (matches the existing warning-800 step)
+  status-review: "#bf360c"        # matches the existing warning-800 step; checked against error, see Colors
   status-complete: "#2e7d32"
   status-todo: "#00838f"
   on-status: "#ffffff"
@@ -211,13 +211,14 @@ Separately, a foreground tone must pass on `background.default` and on a hovered
 `primary-50` row, not merely on `paper`. A tone that passes only on paper fails
 on hover.
 
-**Open decision — review.** `#bf360c` is the lightest orange that clears 4.5:1
-on white; every lighter value fails (`#e65100` reaches only 3.79:1). It is also
-already a used step in the theme's warning ramp (`warning[800]`), not a new
-color being introduced. At this darkness the hue reads red-adjacent and may
-collide with the error chip. Put the two side by side before committing. If
-they collide, the alternative is to move review to a different hue entirely
-rather than to reintroduce a per-chip label exception.
+**Review vs. error, checked.** `#bf360c` is the lightest orange that clears
+4.5:1 on white; every lighter value fails (`#e65100` reaches only 3.79:1). It
+is also already a used step in the theme's warning ramp (`warning[800]`), not
+a new color. Measured against `error` (#c2185b) with CIEDE2000 — the same
+metric the tag palette below is held to — the two are 24.0 apart, over 3x the
+7.5 floor that palette treats as "distinguishable." Rendered side by side they
+read as orange and magenta, not as two shades of red. No collision; no
+exception needed.
 
 The eight tag variants exist to distinguish, not to rank. Hash the tag name to an
 index for deterministic rotation. Append to the palette; never reorder it, and
