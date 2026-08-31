@@ -4,7 +4,7 @@ name: Taruvi UX
 description: UX context for AI-generated work on the Taruvi platform. Research, user and world models, glossary, and interaction standards.
 references:
   visual-standards: ./DESIGN.md
-  implementation: taruvi-ui/components.md, taruvi-ui/datagrid.md
+  implementation: taruvi-refine-providers skill, taruvi-ui/components.md, taruvi-ui/datagrid.md
 targets:
   hit-area-min: 24px
   touch-min: 24px
@@ -56,8 +56,13 @@ get wrong.
 - **Session shape:** Inferred long-session. Dense tables, row virtualization,
   server-side pagination, and 13px body type all imply sustained work rather
   than glances.
-- **Primary activity:** Inferred as triage and record management — scanning many
-  records, filtering to a subset, opening one, acting on it.
+- **Primary activity:** Record management is one activity, not the only one.
+  Depending on the product, users also read and approve documents, answer
+  structured assessments, ask an assistant, watch data change, and navigate
+  hierarchies. *(Earlier drafts of this file said "triage and record management"
+  and every screen generated from it came out as a list. The inference was drawn
+  from guidelines that were themselves mostly table rules — treat it as
+  circular until research says otherwise.)*
 - **What doesn't work for them:** *(unfilled — what has research established?)*
 - **What they are trying to accomplish:** *(unfilled)*
 
@@ -143,8 +148,8 @@ How the product behaves.
 - Icon-only controls need `aria-label`. A tooltip is not an accessible name.
 - Color never carries meaning alone — chips, charts, and errors carry text, or
   icon plus text.
-- Never use `text.disabled` for content text (2.8:1 at its current value, fails
-  AA — re-measure if reskinned). Use `text.secondary`.
+- Never use `text.disabled` for content text (2.8:1, fails AA). Use
+  `text.secondary`.
 - Never use `fill-accent` on text. Links and foreground blue use `fg-accent`
   **[lint]**.
 - Every control carries a boundary at 3:1 against its surface — a fill alone
@@ -201,6 +206,21 @@ is the problem a sticky footer hides.
 **Dirty state.** Visible whenever the form has unsaved changes, since the rule
 above requires warning on navigation away. Text only — no colored dot.
 
+**Explicit save or autosave — pick one per form and say which.** They are
+different contracts and mixing them is how work gets lost.
+
+*Explicit save* is the default. A footer with a save button, a dirty marker, and
+a warning on navigation away. Correct for anything short enough to complete in
+one sitting.
+
+*Autosave* is correct when the form is long enough that losing it would be
+serious — an assessment, a multi-session review. The footer then carries a
+**status**, not a dirty marker: `Saved` rather than `Unsaved changes`. There is
+no save button, no navigation warning, and the status must say what persists,
+because "Saved" alone leaves the user guessing whether it reached the server.
+Never show a dirty marker on an autosaving form; it implies an action that does
+not exist.
+
 ### Content and formatting
 
 - Ellipsis character `…`, not `...`. Loading states end with it too (`Saving…`).
@@ -241,6 +261,71 @@ above requires warning on navigation away. Text only — no colored dot.
   hierarchies, accurate page title.
 - Never open a modal from a modal.
 - Nothing auto-advances, auto-plays, or auto-refreshes without user control.
+
+## Screen Archetypes
+
+**Decide the shape before the details.** Most enterprise screens are record
+management, and an agent that skips this step will build a list for everything —
+including screens where a list is the wrong answer and a table quietly replaces
+the thing the user actually needed.
+
+| Archetype | Use when | Status |
+| --- | --- | --- |
+| Record management | Scanning, filtering, and acting on many similar records | Specified below |
+| Conversational | The user asks and the system answers | Specified below |
+| Document | Long-form content read, commented on, and approved | Specified below |
+| Assessment | A long sequence of structured questions with evidence | Specified below |
+| Hierarchy | Nested structure where position carries meaning | **Not yet specified** |
+| Monitoring | Data changes underneath the user | **Not yet specified** |
+| Builder | The user composes something on a canvas | **Not yet specified** |
+| Comparison | Two versions or records held side by side | Specified below |
+| Spatial | Position on a map or plan is the primary index | **Not yet specified** |
+
+The three marked unspecified are named deliberately. If a screen is one of them,
+say so and ask rather than substituting a table — a map rendered as a list of
+coordinates is worse than an unfinished map.
+
+### Layout primitives
+
+The containers an archetype is built from. Choosing an archetype settles what a
+screen is for; these settle how it is arranged.
+
+| Primitive | Use when | Do not use when |
+| --- | --- | --- |
+| Grid | Items are peers of equal weight and are scanned, not read | Items differ in importance or size |
+| Stacked | Order carries meaning — a form, a thread, a sequence of steps | Items are compared rather than followed |
+| Split | Two regions the user moves between without losing either | Under 1024px, where it becomes two cramped columns |
+| Tabbed | Sections of one record, each self-contained | Sections must be read in order, or there are more than five |
+| Multi-panel | Three or more regions of a single workspace | The panels are unrelated — that is two screens |
+| Off-canvas | A drawer for composing input, dismissed when done | The content is the task rather than an aside |
+| Overlay | A decision that must be made before continuing | Anything the user might need the page behind to answer |
+| Sticky | Content still on screen loses its meaning without it | Reachable by scrolling — see the form footer rule |
+| Ribbon | A command set acting on the content below it | There are fewer than five commands — use buttons |
+
+**Sticky deserves its reasoning stated**, because the rules look inconsistent
+otherwise. A table header sticks and a form footer does not. A column heading's
+meaning is unrecoverable once scrolled past — the row below becomes unreadable
+without it. A form footer is merely out of view and a scroll away. Stick what
+carries meaning for content still on screen; nothing else.
+
+**Ribbons group by consequence, not alphabetically**, with dividers between
+groups and the committing action right-aligned and separated.
+
+### Rejected layouts
+
+Named so they are refused rather than reinvented.
+
+| Layout | Why not |
+| --- | --- |
+| Masonry | Variable heights contradict the fixed 3:2 image ratio and destroy grid rhythm |
+| Infinite scroll | Contradicts server-side pagination and makes a result count meaningless |
+| Floating action button | A persistent floating control, not a rare fallback toast — covers table rows and contradicts "feedback goes to the quietest place that still reaches the user" |
+| Full-screen | NavKit owns the shell; a screen that hides it hides the user's way out |
+| Parallax, cover flow, circular, scattered | Marketing-site patterns. No enterprise use, and each spends motion on decoration |
+| Magazine | Editorial hierarchy applied to records that are peers |
+
+If a request seems to need one of these, the underlying need is usually
+something else — say so and ask rather than building it.
 
 ## Page Patterns
 
@@ -380,8 +465,31 @@ A list with selection checkboxes needs one — checkboxes without it are dead
 controls. It appears only when at least one row is selected. The count sits in an
 `aria-live="polite"` region. The clear-selection control carries an `aria-label`.
 Destructive bulk actions route through the confirmation rules. Outlined controls
-on a blue ground use `rgba(255,255,255,0.7)` — `0.5` fails 3:1 against the
-current blue; re-measure if that token's reskinned.
+on a blue ground use `rgba(255,255,255,0.7)` — `0.5` fails 3:1.
+
+### Card view
+
+An **alternative** view of a list, not a replacement for it. The table stays the
+default and a segmented control switches between them, because scanning a
+hundred records by photograph is slower than scanning them by row — unless the
+photograph is what the user identifies the record by.
+
+If photographs genuinely are the primary index for an entity, cards may be that
+entity's default. That is a per-entity decision and it is recorded in the app's
+`AGENTS.md` beside the field classification, not decided per screen.
+
+Structure, top to bottom: 3:2 photograph, title at up to two lines then clamped,
+status chip, then a single metadata line. Nothing overlays the photograph — see
+`DESIGN.md`. A record with no photograph shows the defined empty frame at the
+same ratio.
+
+The card view inherits the list's search, filters, chips, result count, and
+pagination unchanged. Switching view changes the presentation, never the query —
+a user who has filtered to seven records sees the same seven.
+
+Whole-card navigation uses `<CardActionArea>` with no nested buttons. If a card
+needs both navigation and its own actions, the actions go in an overflow menu
+outside the action area.
 
 ### Entity card
 
@@ -420,26 +528,23 @@ applied everywhere stops being read.
 
 ### Action feedback
 
-> **Status: not yet true of any shipped Taruvi app — see README's Open Items.**
-> The model below is the intended target. `taruvi-refine-template` currently
-> wires `RefineSnackbarProvider`/`useNotificationProvider`, which this section
-> replaces. Treat `LINT_CANDIDATES.md`'s "no toasts" rule as non-blocking until
-> that gap is resolved one way or the other.
+**Feedback goes to the quietest place that still reaches the user.** Nothing
+routinely floats over the data — but an outcome with nowhere to land is worse
+than one that floats, so there is a fallback and it is specified rather than
+improvised.
 
-**There are no toasts.** Nothing floats over the data.
-
-A successful action is confirmed by the interface changing — the row leaves, the
-count drops, the chip changes state, the field saves. Announcing what the user
-can already see is noise, and a channel that mostly carries noise stops being
-read when it finally carries something.
-
-So feedback splits three ways:
+A successful action is usually confirmed by the interface changing — the row
+leaves, the count drops, the chip changes state, the field saves. Announcing what
+the user can already see is noise, and a channel that mostly carries noise stops
+being read when it finally carries something.
 
 | Outcome | Where it surfaces |
 | --- | --- |
 | Success, visible in the UI | Nothing. The change is the confirmation. |
-| Success, reversible | Undo in the affected row, or in the header status line when no row applies |
-| Success, invisible (background job, export queued) | Header status line |
+| Success, reversible, with a row | Undo inline in the affected rows |
+| Success, invisible, user still on the page | Header status line |
+| Success, invisible, user has navigated away | Toast |
+| Reversible with no row to attach to | Toast carrying the undo |
 | Failure | Banner |
 
 **Undo in the row.** A reversible bulk action leaves its rows in place, struck
@@ -448,12 +553,31 @@ fetch or on navigation. This beats a confirmation dialog for anything
 recoverable — offer undo rather than asking twice.
 
 **Header status line.** A single line beneath the page heading, above a hairline,
-for outcomes with no row to attach to. It is a live region (`aria-live="polite"`)
-and it replaces rather than stacks. It clears on the next user action.
+for outcomes with no row to attach to while the user is still on the originating
+page. It is a live region (`aria-live="polite"`), it replaces rather than stacks,
+and it clears on the next user action.
+
+**Toasts are the fallback, and they are rare.** A toast is correct in exactly two
+cases: a background job that finished after the user navigated away, and a
+reversible action with no row and no page to return to — a card dragged between
+board columns, a record deleted from its own detail page.
+
+Never fire a toast for an outcome the user can see happen. If the row vanished in
+front of them, the toast is telling them something they already know, and every
+such toast makes the next real one less likely to be read.
+
+Rules for the ones that remain: one at a time, never a stack. Dismissible, and
+persistent until dismissed if it carries an undo. `aria-live="polite"`, or
+`role="alert"` if it reports a failure. Positioned so it never covers a primary
+action or the row it refers to.
+
+Done properly this is two or three toasts in an entire product. That is few
+enough that people read them, which is the whole point of restricting them.
 
 **Failures use the banner** below. A failure is never silent, never transient,
 and never only in a row — a partial bulk failure states how many succeeded and
-names what did not.
+names what did not. A transient failure the system recovered from on retry is not
+reported at all.
 
 ### Motion
 
@@ -475,7 +599,7 @@ hundred.
 zero, so `transitionend` handlers still fire and nothing hangs waiting for an
 event that never arrives.
 
-Motion is confirmation, never decoration. Because there are no toasts, a row
+Motion is confirmation, never decoration. Because most success is silent, a row
 changing state *is* the feedback — which makes these durations load-bearing
 rather than cosmetic.
 
@@ -490,6 +614,12 @@ Square, not rounded, since it meets the page edges. Icon, then a lead sentence
 in semibold, then supporting detail in the same line, then a single action
 right-aligned. Text and icon take the darker stop of the role's own ramp, never
 `text-primary` on a tint.
+
+**The action is a real button, not styled text.** A 28px outlined button with
+border and label both in the banner's own darker tone. Styled text has no
+affordance, no boundary, and a hit area under the 24px minimum — a banner
+telling someone their work is blocked cannot hide its way out. A dismiss control
+is an icon button with an `aria-label`, in a 24px target.
 
 One banner at a time. If two conditions apply, the more severe wins and the
 other waits — a stack of banners pushes the actual page below the fold.
@@ -525,6 +655,21 @@ control does not change width at the boundaries.
 
 ### Controls
 
+**Every action is a `<button>`, but not every action looks like one.** The
+element is not a style choice — an action that is not a `<button>` is
+unreachable by keyboard and invisible to assistive technology, whatever it looks
+like. What varies is the affordance:
+
+| Context | Treatment |
+| --- | --- |
+| Banner action | 28px outlined button in the banner's role tone |
+| Page or card action | Standard button — primary, secondary, or destructive |
+| Inside a row or comment | Text button is acceptable, in `fg-accent`, padded to a 24px target |
+| Dismiss or close | Icon button, `aria-label`, 24px target |
+
+Uppercase Quicksand on its own does not make something read as a control. If an
+action sits at page or banner level, give it a boundary **[lint]**.
+
 **Toggle or checkbox** is decided by when the change takes effect. A toggle
 applies immediately and needs no save; a checkbox is a value in a form that is
 saved later. Never a toggle inside a form with a save button, and never a
@@ -537,6 +682,102 @@ Do not use it for filtering; that belongs in the filter row.
 **Badges** carry counts only, never status. Neutral by default, accent when the
 count is something to act on, error tone when it represents a problem. Cap at
 `99+`. A badge with a zero count is not rendered.
+
+### Conversational
+
+For products where the user asks and the system answers.
+
+**No chat bubbles.** Bubbles read as consumer messaging. A user turn sits in a
+`surface-subtle` block; an assistant turn is bare on the card, each under a small
+uppercase role label. This matches the activity timeline, which is the same
+structure doing the same job.
+
+**Every answer shows what it drew from.** Source chips sit beneath the answer,
+not inline and not on hover, so an answer without provenance is visibly without
+provenance. An answer that cites nothing says so.
+
+**Copy and retry are persistent controls**, not hover-revealed — hover-only
+controls are unreachable on touch. They sit below the answer alongside the
+sources.
+
+**While streaming**, show a caret and a Stop control. Stop leaves the partial
+answer in place; it does not discard it.
+
+**The composer** is multiline, grows to a few rows then scrolls, and carries
+attach and send. Send is an icon button and takes no plus — it is not a create
+action. A standing line reminds the user to verify before acting; it is part of
+the composer, not a dismissible notice, because the caution applies to every
+answer rather than to one session.
+
+Errors follow the banner rules. A failed answer is retryable in place and does
+not vanish from the thread.
+
+### Document
+
+For long-form content that is read, commented on, and approved.
+
+Three regions: a contents rail, the body, and comments. The rail reflects the
+document's own headings and marks position; it is not navigation and does not
+belong in NavKit's sidebar.
+
+**State before content.** If the version on screen is not the published one, a
+banner says so above everything else. Someone acting on a draft in the belief it
+is policy is the failure this archetype exists to prevent, and it is not
+prevented by a small status chip.
+
+**Annotated passages take a tint and an underline.** Tint alone would make colour
+the only channel. A comment and its passage highlight together on selection, in
+both directions.
+
+**Comments carry reply and resolve.** Resolved comments collapse rather than
+disappearing — the reasoning behind a change is the audit trail.
+
+Version identity is always visible: number, who last edited, when, and a route to
+compare against the previous version.
+
+### Assessment
+
+For long sequences of structured questions with evidence.
+
+**Progress is counted, not percentage** — `61 of 114 answered`. A percentage
+hides how much is left in absolute terms, which is what someone deciding whether
+to continue actually needs.
+
+**Answer options are the question.** Where a question has a small fixed set of
+answers, render them as large buttons rather than a select — the options should
+be readable without opening anything. Selected state carries a border weight
+change as well as a tint.
+
+**Conditional requirements are stated before they are enforced.** If a partial
+answer requires a note and a target date, say so when that answer is chosen, not
+on submit.
+
+**Evidence attaches to the answer**, not to the assessment. Each attachment
+carries a remove control with a 24px target and an `aria-label` naming the file.
+
+Assessments autosave. See the Forms rules — the footer carries a status, not a
+dirty marker, and there is no navigation warning.
+
+### Comparison
+
+For two versions or two records held side by side.
+
+Two equal columns, older on the left. Above them a summary of the difference —
+how many sections changed, how many added, how many removed — so the shape of
+the change is known before reading it.
+
+**Additions and removals are labelled in words, not colour alone.** A green tint
+with no "Added" label is the most common accessibility failure in a diff, and it
+is invisible to roughly one reader in twelve. Tint, a left rule, and a word.
+
+Unchanged content stays visible. A diff that hides everything unchanged shows
+what moved but not what it means, and a policy is read for its whole text.
+
+Both versions are identified by number, state, and date — a comparison whose
+sides are unlabelled is a comparison the reader cannot act on.
+
+Below 1024px the columns stack, older first, with the change summary repeated
+above each. Side-by-side in two 300px columns is unreadable.
 
 ### Charts
 
@@ -558,8 +799,8 @@ count is something to act on, error tone when it represents a problem. Cap at
 - Do name the record in a confirmation title and in the destructive button label.
 - Don't put a toggle in a form that has a save button.
 - Don't use a badge to carry status — that is a chip.
-- Don't add a toast unless the app has adopted the toast-free feedback model
-  above — see Action Feedback's status note.
+- Don't add a toast for anything the user can watch happen. Toasts are for
+  outcomes that arrive after the user has moved on.
 - Do offer undo instead of a confirmation dialog wherever the action is
   recoverable.
 - Do use the glossary's word, not the codebase's.
